@@ -1,0 +1,320 @@
+---
+title: "Netflix Original Films and IMDB scores"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: 
+      version: 4
+      bootswatch: minty
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+Row {data-height = 50}
+------------------
+```{r fig.height=4, fig.width=8}
+netflix= read.csv(file.choose())
+library(dplyr)
+#as_tibble(sapply(netflix,class))
+library(lubridate)
+netflix=netflix %>% mutate(Released = mdy(Premiere))
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+  n <- netflix %>%
+  group_by(Released) %>%
+  summarise(total = n())
+  n_graph <- ggplot(data = n) +
+  geom_col(mapping = aes(x = Released,
+                         y = total,
+                         fill = ifelse(total == max(total), "red", "grey"))) +
+  labs(title = "Netflix Movies released each year") +
+  theme_minimal() +
+  scale_fill_manual(values = c("black", "red")) +
+  theme(legend.position = "none",
+        plot.title = element_text(family = "Bebas Neue",
+                                  size = 25,
+                                  color = "red"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank())
+
+# Displaying the plot
+print(n_graph)
+
+```
+
+
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+
+n4 <- netflix %>% group_by(Genre) %>% 
+  summarise(Movies=n()) %>% 
+  arrange(desc(Movies)) %>% 
+  head(5)
+library(ggplot2)
+n4_graph <-
+  ggplot(data=n4)+
+  geom_col(mapping = aes(
+    x=reorder(Genre, -Movies),
+    y=Movies,
+    fill=ifelse(Movies == max(Movies),"red","blue")))+
+  labs(title="Most Popular Genres")+
+  theme_minimal()+
+  scale_fill_manual(values = c("blue","red"))+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="black"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank(),
+    panel.grid.minor = element_blank(),
+    text = element_text(size=20)
+  )
+
+n4_graph
+```
+
+
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+library(ggplot2)  
+n5 <- netflix %>% 
+  group_by(Language) %>% 
+  summarise(Movies=n()) %>% 
+  arrange(desc(Movies)) %>% 
+  head(5)
+
+n5_graph <- 
+  ggplot(data=n5)+
+  geom_col(mapping=aes(
+    x=reorder(Language, -Movies),
+    y=Movies,
+    fill=ifelse(Movies == max(Movies),"yellow","orange")))+
+  labs(title="Most Popular Languages")+
+  theme_minimal()+
+  scale_fill_manual(values=c("orange","yellow"))+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="black"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank(),
+    panel.grid.minor = element_blank(),
+    title=element_text(size=20)
+  )
+
+n5_graph
+```
+
+
+
+
+```{r fig.height=4, fig.width=8}
+library(ggplot2)
+library(dplyr)
+n6_graph <- ggplot(netflix)+
+  geom_dotplot(mapping=aes(x=`IMDB.Score`),
+               binwidth=0.3,fill="darkblue",color="lightblue")+
+  labs(title="IMDB Score Distribution")+
+  theme_minimal()+
+  theme(
+    legend.position="none",
+    plot.title=element_text(
+      family="Bebas Neue",
+      size=25,
+      color="black"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n6_graph
+```
+
+
+
+```{r fig.height=4, fig.width=8}
+library(ggplot2)
+library(dplyr)
+n7 <- netflix %>% arrange(desc(`IMDB.Score`)) %>% head(5)
+
+n7_graph <- ggplot(data=n7)+
+  geom_col(mapping=aes(
+    x=reorder(`Title`,`IMDB.Score`),
+    y=`IMDB.Score`,
+    fill=ifelse(
+      `IMDB.Score`==max(`IMDB.Score`),
+      "red","black")))+
+  labs(title="Highest Rated Movies")+
+  theme_minimal()+
+  scale_fill_manual(values = c("black","#E50914"))+
+  coord_flip()+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="red"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n7_graph
+```
+
+Row {data-height = 50}
+-------------------------------------------------
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+library(ggplot2)
+n8 <- netflix %>% arrange(desc(-`IMDB.Score`)) %>% head(5)
+
+n8_graph <- ggplot(data=n8)+
+  geom_col(mapping=aes(
+    x=reorder(`Title`, -`IMDB.Score`),
+    y=`IMDB.Score`,
+    fill=ifelse(
+      `IMDB.Score`==min(`IMDB.Score`),
+      "red","black")))+
+  labs(title="Lowest Rated Movies")+
+  theme_minimal()+
+  scale_fill_manual(values = c("#2d2d2d","#E50914"))+
+  coord_flip()+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="red"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n8_graph
+
+```
+
+
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+library(ggplot2)
+n9_graph <- ggplot(data=netflix)+
+  geom_dotplot(
+    mapping=aes(x=Runtime),
+    binwidth=2.25,
+    fill="#2d2d2d",
+    color="purple")+
+  labs(title="Movie Runtime")+
+  theme_minimal()+
+  theme(
+    legend.position="none",
+    plot.title=element_text(
+      family="Bebas Neue",
+      size=25,
+      color="red"),
+    axis.title.x = element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n9_graph
+
+```
+
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+library(ggplot2)
+n10 <- netflix %>% arrange(desc(Runtime)) %>% head(5)
+
+n10_graph <- ggplot(data=n10)+
+  geom_col(mapping=aes(
+    x=reorder(`Title`,`Runtime`),
+    y=`Runtime`,
+    fill=ifelse(Runtime==max(`Runtime`),"purple","pink")))+
+  labs(title="Longest Movies")+
+  theme_minimal()+
+  scale_fill_manual(values=c("pink","purple"))+
+  coord_flip()+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="black"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n10_graph
+
+
+```
+
+
+```{r fig.height=4, fig.width=8}
+library(ggplot2)
+library(dplyr)
+n11 <- netflix %>% arrange(desc(-Runtime)) %>% head(5)
+
+n11_graph <- ggplot(data=n11)+
+  geom_col(mapping=aes(
+    x = reorder(`Title`,`Runtime`),
+    y = `Runtime`,
+    fill = ifelse(Runtime==min(`Runtime`),"red","seagreen")))+
+  labs(title="Shortest Movies")+
+  theme_minimal()+
+  scale_fill_manual(values = c("seagreen","#E50914"))+
+  coord_flip()+
+  theme(
+    legend.position="none",
+    plot.title = element_text(
+      family="Bebas Neue",
+      size=25,
+      color="seagreen"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank(),
+    text=element_text(size=20)
+  )
+
+n11_graph
+```
+
+
+
+```{r fig.height=4, fig.width=8}
+library(dplyr)
+library(ggplot2)
+n12_graph <- ggplot(data=netflix,aes(x = `IMDB.Score`, y = Runtime))+
+  geom_point()+
+  geom_smooth(method = "lm", color="blue")+
+  labs(title="Runtime vs IMDB Rating")+
+  theme_minimal()+
+  scale_fill_manual(values=c("lightgreen","lightblue"))+
+  theme(
+    legend.position = "none",
+    plot.title=element_text(
+      family="Bebas Neue",
+      size=25,
+      color="black"),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    panel.grid.major.x=element_blank()
+  )
+
+n12_graph
+```
+
+Row {data-height = 50}
+-------------------------------------------------
